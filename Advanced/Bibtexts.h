@@ -3,78 +3,105 @@
 #include <vector>
 using namespace std;
 
-class Article{
-public:
-	Article() {
-		this->key = 0;
-		this->year = 0;
-		this->month = 0;
-		this->volume = 0;
-		this->pages = "";
-		this->publisher = "";
-		this->edition = "";
-		this->author = "";
-		this->title = "";
-		this->journal = "";
-	}
+class Entity {
+	public:
+		virtual int getKey() = 0;
+		virtual int getYear() = 0;
+		virtual string getAuthor() = 0;
+		virtual string getTitle() = 0;
 
-	//Set Function
-	void setKey(int key);
-	void setYear(int year);
-	void setMonth(int month);
-	void setVolume(int volume);
-	void setChapter(string chapter);
-	void setPages(string pages);
-	void setEdition(string edition);
-	void setAuthor(string author);
-	void setTitle(string title);
-	void setJournal(string journal);
-	void setPublisher(string publisher);
+		virtual void setKey(int key) = 0;
+		virtual void setYear(int year) = 0;
+		virtual void setAuthor(string author) = 0;
+		virtual void setTitle(string title) = 0;
 
-
-	//Get Function
-	int getKey();
-	int getYear();
-	int getMonth();
-	int getVolume();
-	string getChapter();
-	string getPages();
-	string getEdition();
-	string getAuthor();
-	string getTitle();
-	string getJournal();
-	string getPublisher();
-
-private:
-	int key;
-	int year;
-	int month;
-	int volume;
-	string publisher;
-	string chapter;
-	string edition;
-	string pages;
-	string author;
-	string title;
-	string journal;
+	protected:
+		int key;
+		int year;
+		string author;
+		string title;
 };
 
-class Book{
+class Article : public Entity {
+	public:
+		Article() {
+			this->key = 0;
+			this->year = 0;
+			this->month = 0;
+			this->volume = 0;
+			this->chapter = 0;
+			this->pages = "";
+			this->publisher = "";
+			this->edition = "";
+			this->author = "";
+			this->title = "";
+			this->journal = "";
+		}
+
+		//Set Function
+		void setKey(int key);
+		void setYear(int year);
+		void setMonth(int month);
+		void setVolume(int volume);
+		void setChapter(int chapter);
+		void setPages(string pages);
+		void setEdition(string edition);
+		void setAuthor(string author);
+		void setTitle(string title);
+		void setJournal(string journal);
+		void setPublisher(string publisher);
+
+
+		//Get Function
+		int getKey();
+		int getYear();
+		int getMonth();
+		int getVolume();
+		int getChapter();
+		string getPages();
+		string getEdition();
+		string getAuthor();
+		string getTitle();
+		string getJournal();
+		string getPublisher();
+
+	private:
+		int month;
+		int volume;
+		int chapter;
+		string publisher;
+		string edition;
+		string pages;
+		string journal;
+};
+
+class Book : public Entity {
 public:
 	Book() {
 		this->key = 0;
 		this->chapter = 0;
 		this->year = 0;
+		this->month = 0;
+		this->number = 0;
+		this->series = 0;
+		this->volume = 0;
 		this->title = "";
 		this->publisher = "";
 		this->author = "";
 		this->editor = "";
+		this->edition = "";
+		this->booktitle = "";
+		this->address = "";
 	}
 
 	//Set Function
 	void setKey(int key);
 	void setChapter(int chapter);
 	void setYear(int year);
+	void setMonth(int month);
+	void setNumber(int number);
+	void setSeries(int series);
+	void setVolume(int volume);
 	void setTitle(string title);
 	void setPublisher(string publisher);
 	void setAuthor(string author);
@@ -82,10 +109,6 @@ public:
 	void setEdition(string edition);
 	void setBooktitle(string booktitle);
 	void setAddress(string address);
-	void setMonth(int month);
-	void setNumber(int number);
-	void setSeries(int series);
-	void setVolume(int volume);
 
 	//Get Function
 	int getKey();
@@ -103,25 +126,21 @@ public:
 	string getBooktitle();
 	string getAddress();
 		
-
+//chapter month number
 private:
-	int key;
-	int chapter;
-	int year;
-	int month;
-	int number;
+	int chapter; 
+	int month; 
+	int number; 
 	int series;
-	int volume;
-	string edition;
-	string booktitle;
-	string address;
-	string title;
-	string publisher;
-	string author;
-	string editor;
+	int volume; 
+	string edition; 
+	string booktitle; 
+	string address; 
+	string publisher; 
+	string editor; 
 };
-
-class Inproceedings {
+//page
+class Inproceedings : public Entity {
 public:
 	Inproceedings() {
 		this->key = 0;
@@ -149,13 +168,10 @@ public:
 	string getAuthor();
 
 private:
-	int key;
-	int year;
 	string pages;
 	string institution;
-	string author;
-	string title;
 };
+
 class Database {
 public :
 	Database() {
@@ -174,6 +190,7 @@ public :
 	void listSearch_DB(string att, string value);
 	void delete_data_DB(int key);
 	void element_DB(string target, string att, string value);
+	void sort_DB(string att, int direct);
 
 	void save_Article(Article ar);
 	void save_Book(Book bk);
@@ -190,6 +207,7 @@ public :
 	UI() {
 		this->db = Database();
 	}
+	void sort_data(string att, string order);
 	void delete_data(int key);
 	void insert_article(Article ar);
 	void insert_book(Book bk);
