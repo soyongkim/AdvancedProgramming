@@ -1,10 +1,11 @@
 # AdvancedProgramming
-for assignment
+ver2.0
 사용법
 ----- 
 1. 우선 첨부되어 있는 bib파일은 cmake로 컴파일을 진행하고 난 후 생성되는 실행파일이 들어있는 폴더에 넣어 주셔야 합니다.(절대경로로 변환해서 파일이름 입력시 파일이름만 입력하면 되도록 하기 위함입니다)
 2. testlist.txt 파일에는 bib파일의 경로를 적어주시면 됩니다.
-3. 명령이 끝나면 > input order end 와 같은 명령이 실행되었다는 메시지가 출력됩니다.
+3. 프로그램을 실행하면 아래 그림과 같이 실행됩니다.
+![main](C:\Users\soyongkim\image\main.jpg)
 4. 첨부되어 있는 mybib.bib / newrecord.bib / listb.bib 은 같은 실행 폴더에, mybib2.bib은 아무데나 두셔도 되지만 이 경로를 testlist.txt안에 절대경로로 적어 두셔야 합니다.
 
 명령어
