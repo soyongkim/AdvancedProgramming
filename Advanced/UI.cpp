@@ -35,3 +35,12 @@ void UI::delete_data(int key) {
 	//std::cout << ">called up_i()" << endl;
 	db.delete_data_DB(key);
 }
+
+void UI::sort_data(string att, string order) {
+	if (order.compare("asc") == 0)
+		db.sort_DB(att, 0);
+	else if (order.compare("desc") == 0)
+		db.sort_DB(att, 1);
+	else
+		std::cout << "[Info]: order is wrong. you have to insert \"asc\" or \"desc\"" << std::endl;
+}
