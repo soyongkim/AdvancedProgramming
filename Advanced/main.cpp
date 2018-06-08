@@ -9,12 +9,13 @@
 using namespace std;
 
 #define PROGRAM_NAME "ReferenceManagement"
-const double Version = 0.1;
 
-#define PROGRAM_VERSION 0.1
+#define PROGRAM_VERSION 2.0
 #define ARGUMENT_AMOUNT 100
 #define BUF_SIZE 1024
 
+
+void usage();
 void openFile(char* path, int flag);
 string truncData(string data);
 int createData(vector<string> buf);
@@ -34,65 +35,82 @@ int key = 0;
 		// Print program name and version
 		std::string program_name = "ReferenceManagement";
 		std::cout << program_name << " Version: " << PROGRAM_VERSION << std::endl;
+		usage();
 
-		int argc = 1;
+		int argc;
 		char arg[ARGUMENT_AMOUNT][BUF_SIZE] = { 0, };
 
 		while (1) {
 			argc = 1;
+			std::cout << "[Order]: ";
+			rewind(stdin);
 			fgets(arg[0], BUF_SIZE, stdin);
+			int string_size = strlen(arg[0]);
 
 			while (1) {
-				//¹®ÀÚ¿­ ±æÀÌ ÃøÁ¤
+				//"" ë¬¸ìì—´ ê¸¸ì´
 				int size = 0;
-				while (1) {
-					if (arg[0][size] == ' ' || arg[0][size] == '\n')
-						break;
+				if (arg[0][size] == '\"') {
 					size++;
+					while (1) {
+						if (arg[0][size] == '\"')
+							break;
+						size++;
+					}
+					size++;
+
+					//"" ë¬¸ìì—´ ë³µì‚¬
+					for (int j = 0; j < size - 2; j++) 
+						arg[argc][j] = arg[0][j+1];
+				}
+				else {
+					//ë¬¸ìì—´ ê¸¸ì´
+					while (1) {
+						if (arg[0][size] == ' ' || arg[0][size] == '\n')
+							break;
+						size++;
+					}
+					//ë¬¸ìì—´ ë³µì‚¬
+					for (int j = 0; j < size; j++) 
+						arg[argc][j] = arg[0][j];
 				}
 
-				//¹®ÀÚ¿­ º¹»ç
-				for (int j = 0; j <= size; j++) {
-					arg[argc][j] = arg[0][j];
-				}
-
-				//¿øº» ¹®ÀÚ¿­ Àç¹èÄ¡
-				for (int j = 0; j < BUF_SIZE; j++) {
-					arg[0][j] = arg[0][j + size + 1];
-				}
-
-				//´Ù ÀĞÀ»¶§ÀÇ Á¶°Ç
-				if (arg[argc][size] == '\n') {
-					arg[argc][size] = 0;
+				//ë‹¤ ì½ì„ë•Œì˜ ì¡°ê±´
+				if (arg[0][size] == '\n') {
+					//arg[argc][size] = 0;
 					break;
 				}
-				arg[argc][size] = 0;
+				//ì›ë³¸ ë¬¸ìì—´ ì¬ë°°ì¹˜
+				for (int j = 0; j < string_size; j++) {
+					if (arg[0][size] == '\n')
+						break;
+					arg[0][j] = arg[0][j + size + 1];
+					arg[0][j + size + 1] = 0;
+				}
 				argc++;
 			}
-
+			//ëª…ë ¹ ìˆ˜í–‰ êµ¬ê°„
 			while (1) {
-				if (std::string(arg[1]) == "--input") {
-					// error
+				if (std::string(strlwr(arg[1])) == "--input") {
 					if (argc < 2) {
-						std::cerr << "Error: program needs the path of bib file." << std::endl;
+						std::cerr << "[Usage]: --input [File1] [File2] [File3] [...]" << std::endl;
 						break;
 					}
-
-					//ÀÎÇ² ½ÇÇà
+					//--input ëª…ë ¹ ìˆ˜í–‰
 					for (int i = 2; i <= argc; i++) {
-						//Àı´ë °æ·Î º¯È¯
+						//ì ˆëŒ€ ê²½ë¡œ ë³€í™˜
 						char* path = changeAPath(arg[i]);
 
 						char txtpath[10][BUF_SIZE] = { 0, };
 						if (strstr(path, ".txt") != NULL) {
 							ifstream inFile(path);
 							if (!inFile.is_open()) {
-								perror("error");
+								perror("[Error]");
 								break;
 							}
 							for (int i = 0;!inFile.eof();i++) {
 								inFile.getline(txtpath[i], BUF_SIZE);
-								std::cout << "txt:" << txtpath[i] << endl;
+								std::cout << "[Text File Path]: " << txtpath[i] << endl;
 								openFile(txtpath[i], 0);
 							}
 							inFile.close();
@@ -101,83 +119,86 @@ int key = 0;
 							openFile(arg[i], 0);
 						}
 					//for end
-					std::cout << ">input order end" << std::endl;
 					}
 					break;
 
 				}
-				else if (std::string(arg[1]) == "--list") {
-					// error
-					if (argc < 2) {
-						std::cerr << "Error: program needs the order how to show the table." << std::endl;
-						break;
-					}
+				else if (std::string(strlwr(arg[1])) == "--list") {
+					// --list ëª…ë ¹ ìˆ˜í–‰
 					if (argc == 2) {
 						if (strcmp(strlwr(arg[2]), "all") == 0)
 							ui.listAll();
+						else
+							std::cerr << "[Usage]: --list all or [Attribute] [\"Value\"]" << std::endl;
 					}
-					else {
+					else if (argc == 3) {
 						ui.listSearch(string(strlwr(arg[2])), string(arg[3]));
 					}
-					std::cout << ">list order end" << std::endl;
-					break;
-				}
-				else if (std::string(arg[1]) == "--update") {
-					// error
-					if (argc < 3) {
-						std::cerr << "Error: program needs the order what record have to change." << std::endl;
+					else {
+						std::cerr << "[Usage]: --list all or [Attribute] [\"Value\"]" << std::endl;
 						break;
 					}
-
-					if(argc == 2)
-						std::cout << ">Insert bib file path name" << std::endl;
-					else {
-						int k = stoi(string(arg[2]));
+					break;
+				}
+				else if (std::string(strlwr(arg[1])) == "--update") {
+					//--update ëª…ë ¹ ìˆ˜í–‰
+					if(argc == 3) {
+						int k;
+						if (string(arg[2]).find_first_not_of("0123456789") == string::npos) 
+							k = stoi(string(arg[2]));
+						else {
+							std::cout << "[Error]: Insert Key Number not Character" << endl;
+							break;
+						}
 						char* path = changeAPath(arg[3]);
+						if (k > key) {
+							std::cout << "[Error]: This key number is not exist" << endl;
+							break;
+						}
 						openFile(path, 1);
 						ui.delete_data(k);
 						insertData(chk, k);
 					}
-					std::cout << ">update order end" << std::endl;
+					else
+						std::cerr << "[Usage]: --update [Key] [.bib File]" << std::endl;
 					break;
 				}
-				else if (std::string(arg[1]) == "--element") {
-					// error
-					if (argc < 3) {
-						std::cerr << "Error: program needs the order what record have to change." << std::endl;
-						break;
-					}
-
-					if (argc == 2)
-						std::cout << ">example> --element key year 2010" << std::endl;
-					else if(argc >= 4) {
-						string att = string(arg[3]);
+				else if (std::string(strlwr(arg[1])) == "--element") {
+					//--element ëª…ë ¹ ìˆ˜í–‰
+					if (argc == 4) {
+						string key_value = string(arg[2]);
+						string att = string(strlwr(arg[3]));
 						string newdata = string(arg[4]);
-						for (int i = 5;;i++) {
-							if (arg[i][0] == 0)
-								break;
-							newdata.append(" ");
-							newdata.append(arg[i]);
-						}		
-						if (att.find_first_not_of("0123456789") != string::npos)
-							ui.element(string(arg[2]), string(arg[3]), newdata);
+						if (key_value.find_first_not_of("0123456789") == string::npos) {
+							if(att.compare("key") == 0)
+								std::cout << "[Error]: Key value is not changed" << endl;
+							else
+								ui.element(key_value, att, newdata);
+						}
 						else
-							std::cout << "Insert Key Number not Character" << endl;
+							std::cout << "[Error]: Insert Key Number not Character" << endl;
 					}
-					std::cout << ">element order end" << std::endl;
+					else
+						std::cerr << "[Usage]: --element [Key] [Attribute] [\"Value\"]" << std::endl;
 					break;
 				}
-				else if (std::string(arg[1]) == "--exit") {
+				else if (std::string(strlwr(arg[1])) == "--sort") {
+					//--sort ëª…ë ¹ ìˆ˜í–‰
+					if (argc == 3) {
+						string att = string(arg[2]);
+						string order = string(strlwr(arg[3]));
+						ui.sort_data(att, order);
+					}
+					else
+						std::cerr << "[Usage]: --sort [Attribute] [asc or desc]" << std::endl;
+					break;
+				}
+				else if (std::string(strlwr(arg[1])) == "--exit") {
 					// End of Program
 					return 0;
 				}
 				else {
-					std::cerr << "Usage:" << std::endl
-						<< "1. --input file1 file2" << std::endl
-						<< "2. --list all or command" << std::endl
-						<< "3. --update command" << std::endl
-						<< "4. --element att value att value" << std::endl
-						<< "5. --exit : program exit" << std::endl;
+					usage();
 					break;
 				}
 			}
@@ -191,30 +212,38 @@ int key = 0;
 
 	void openFile(char* path, int flag) {
 		char inputstring[BUF_SIZE];
+		int exception = 1;
 		vector<string> v;
 		ifstream inFile(path);
 		if (!inFile.is_open()) {
-			perror("error");
+			perror("[Error]");
 			return;
 		}
 		while (!inFile.eof()) {
 			inFile.getline(inputstring, BUF_SIZE);
-			//std::cout << inputstring << endl;
 			v.push_back(string(inputstring));
 			if (strcmp(inputstring, "") == 0) {
-				//for (int i = 0; v.at(i).compare("") != 0; i++)
-					//std::cout << "v : " << v.at(i) << endl;
-
 				if (v.at(0).find("@", 0) != std::string::npos) {
+					if (v.at(0).find("Preamble") != std::string::npos || v.at(0).find("Comment") != std::string::npos) {
+						v.clear();
+						continue;
+					}
+					try {
+						if (v.at(0).find("}") != std::string::npos)	 throw exception;
+					}
+					catch (int exception) {
+						std::cout << "[Error]: Wrong format data" << std::endl;
+						return;
+					}
 					chk = createData(v);
-
-					if(flag == 0)
+					if (flag == 0) 
 						insertData(chk, 0);
 				}
 				v.clear();
 			}
 		}
 		inFile.close();
+		std::cout << "[Info]: Input Complete" << std::endl;
 	}
 
 	string truncData(string data) {
@@ -226,8 +255,8 @@ int key = 0;
 
 
 	char* changeAPath(char* arg) {
-		// Àı´ë°æ·Î·Î ¸¸µé±â
-		char repath[BUF_SIZE] = { 0, };
+		// ì ˆëŒ€ê²½ë¡œë¡œ ë§Œë“¤ê¸°
+		char repath[MAX_PATH] = { 0, };
 		GetModuleFileName(NULL, repath, MAX_PATH);
 		//printf("re:%s\n", repath);
 		char path[BUF_SIZE] = { 0, };
@@ -244,23 +273,20 @@ int key = 0;
 				break;
 			}
 		}
-		//printf("re:%s\n", repath);
 		int j = -1;
 		path[t++] = '\\';
-		//strcat(path, arg);
 		while (1) {
 			path[t++] = arg[++j];
 			if (arg[j] == 0)
 				break;
 		}
-
 		strcpy(arg, path);
 		return arg;
 	}
 
 	void insertData(int chk, int k) {
 		if (chk == 1) {
-			if (k > 0)
+			if (k > 0) 
 				aobj.setKey(k);
 			else
 				aobj.setKey(key++);
@@ -282,34 +308,39 @@ int key = 0;
 		}
 	}
 
+	void usage() {
+		std::cout << "[Usage]" << std::endl
+			<< "1. Input File     : --input [File1] [File2] [File3] [...]" << std::endl
+			<< "2. Show List      : --list all or [Attribute] [\"Value\"]" << std::endl
+			<< "3. Update File    : --update [Key] [.bib File]" << std::endl
+			<< "4. Update Element : --element [Key] [Attribute] [\"Value\"]" << std::endl
+			<< "5. Sort Table     : --sort [Attribute] [asc or desc]" << std::endl
+			<< "6. Program Exit   : --exit" << std::endl << std::endl;
+	}
+
 	int createData(vector<string> buf) {
-		//ÆÄÀÏ ÀĞ±â
+		//íŒŒì¼ ì½ê¸°
 		string att;
 		string value;
 		int pos;
-		int chk = 0;
 		for (int i = 0;i < buf.size();i++) {
-			// °´Ã¼ ¸¸µé±â
+			// ê°ì²´ ë§Œë“¤ê¸°
 			if (buf.at(i).find("@") != std::string::npos) {
 				if (buf.at(i).find("article", 0) != std::string::npos) {
 					//puts("-----aritcle ----");
-					Article aobj = Article();
+					aobj = Article();
 					chk = 1;
 				}
 				else if (buf.at(i).find("book", 0) != std::string::npos) {
-					Book bobj = Book();
+					bobj = Book();
 					chk = 2;
 				}
 				else if (buf.at(i).find("inproceedings", 0) != std::string::npos) {
-					Inproceedings iobj = Inproceedings();
+					iobj = Inproceedings();
 					chk = 3;
 				}
-				else {
-					//std::cout << "Unknown Type" << endl;
-					chk = 4;
-				}
-			} // ÀÎÀÚ ³Ö±â
-			else if (pos = buf.at(i).find('=') != std::string::npos) {
+			} // ì¸ì ë„£ê¸°
+			if ((pos = buf.at(i).find("=")) != std::string::npos) {
 				//std::cout << "pos:" << pos << endl;
 				int j = 0;
 				for (j = 0; buf.at(i).at(j) != '='; j++);
@@ -317,8 +348,8 @@ int key = 0;
 				att = buf.at(i).substr(0, pos - 1);
 				value = buf.at(i).substr(pos + 2, buf.at(i).length());
 				value = truncData(value);
-				//µ¥ÀÌÅÍ ¸ÅÄª
-				// ¾ÆÆ¼Å¬ ÄÉÀÌ½º
+				//ë°ì´í„° ë§¤ì¹­
+				// ì•„í‹°í´ ì¼€ì´ìŠ¤
 				if (chk == 1) {
 					if (att.compare("author") == 0) {
 						int j = i;
@@ -350,6 +381,17 @@ int key = 0;
 							aobj.setVolume(0);
 						}		
 					}
+					else if (att.compare("chapter") == 0) {
+						value.erase(std::remove(value.end() - 1, value.end(), ','), value.end());
+						int c;
+						try {
+							c = stoi(value);
+							aobj.setChapter(c);
+						}
+						catch (std::invalid_argument&) {
+							aobj.setChapter(0);
+						}
+					}
 					else if (att.compare("journal") == 0) {
 						int j = i;
 						while (buf.at(++j).find('=') == std::string::npos) {
@@ -367,15 +409,6 @@ int key = 0;
 							value.append(truncData(buf.at(i + 1)));
 						}
 						aobj.setTitle(value);
-					}
-					else if (att.compare("chapter") == 0) {
-						int j = i;
-						while (buf.at(++j).find("=", 0) == std::string::npos) {
-							if (buf.at(j).compare("}") == 0 || buf.at(j).compare("},"))
-								break;
-							value.append(truncData(buf.at(i + 1)));
-						}
-						aobj.setChapter(value);
 					}
 					else if (att.compare("pages") == 0) {
 						int j = i;
@@ -405,14 +438,14 @@ int key = 0;
 						aobj.setPublisher(value);
 					}
 				}
-				// ºÏ ÄÉÀÌ½º
+				// ë¶ ì¼€ì´ìŠ¤
 				if (chk == 2) {
 					if (att.compare("year") == 0) {
 						value.erase(std::remove(value.end() - 1, value.end(), ','), value.end());
 						int c = stoi(value);
 						bobj.setYear(c);
 					}
-					else if (att.compare("chpater") == 0) {
+					else if (att.compare("chapter") == 0) {
 						value.erase(std::remove(value.end() - 1, value.end(), ','), value.end());
 						int c = stoi(value);
 						bobj.setChapter(c);
@@ -437,10 +470,10 @@ int key = 0;
 						int c;
 						try {
 							c = stoi(value);
-							aobj.setVolume(c);
+							bobj.setVolume(c);
 						}
 						catch (std::invalid_argument&) {
-							aobj.setVolume(0);
+							bobj.setVolume(0);
 						}
 						bobj.setVolume(c);
 					}
@@ -498,8 +531,17 @@ int key = 0;
 						}
 						bobj.setPublisher(value);
 					}
+					else if (att.compare("title") == 0) {
+						int j = i;
+						while (buf.at(++j).find('=') == std::string::npos) {
+							if (buf.at(j).compare("}") == 0 || buf.at(j).compare("},"))
+								break;
+							value.append(truncData(buf.at(i + 1)));
+						}
+						bobj.setTitle(value);
+					}
 				}
-				// ÀÎÇÁ·Î½Ãµù ÄÉÀÌ½º
+				// ì¸í”„ë¡œì‹œë”© ì¼€ì´ìŠ¤
 				if (chk == 3) {
 					if (att.compare("year") == 0) {
 						value.erase(std::remove(value.end() - 1, value.end(), ','), value.end());
@@ -513,7 +555,7 @@ int key = 0;
 								break;
 							value.append(truncData(buf.at(i + 1)));
 						}
-						iobj.setAuthor(value);
+						iobj.setPages(value);
 					}
 					else if (att.compare("institution") == 0) {
 						int j = i;
@@ -542,9 +584,10 @@ int key = 0;
 						}
 						iobj.setAuthor(value);
 					}
-
 				}
+
 			}		
+
 		}
 		return chk;
 	}
