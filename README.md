@@ -55,3 +55,4 @@ ver2.0
 
 : [Attribute]를 기준으로 오름차순 혹은 내림차순으로 테이블을 정렬합니다.(각 테이블별로 정리합니다)
 - 오름차순 정렬은 [asc or desc]에 asc를 입력하고 내림차순 정렬은 desc를 입력합니다.
+- [Attribute]는 각 클래스에서 공통으로 쓰이는 key, year, author, title만 입력이 가능합니다.
