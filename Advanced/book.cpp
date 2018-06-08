@@ -44,7 +44,7 @@ void Book::setBooktitle(string booktitle) {
 void Book::setAddress(string address) {
 	this->address = address;
 }
-//Ã·ºÎ+
+//ì²¨ë¶€+
 
 
 //Get Function
