@@ -1,34 +1,50 @@
 # AdvancedProgramming
 ver2.0
 사용법
------ 
-1. 우선 첨부되어 있는 bib파일은 cmake로 컴파일을 진행하고 난 후 생성되는 실행파일이 들어있는 폴더에 넣어 주셔야 합니다.(절대경로로 변환해서 파일이름 입력시 파일이름만 입력하면 되도록 하기 위함입니다)
-2. testlist.txt 파일에는 bib파일의 경로를 적어주시면 됩니다.
-3. 프로그램을 실행하면 아래 그림과 같이 실행됩니다.
+------
+1. cmake를 이용하여 컴파일 합니다.
+
+2. 실행파일이 생성된 폴더에 예제용 bib파일과 txt파일을 넣습니다.(프로그램은 실행파일의 절대경로를 참조하여 파일을 import합니다) 
+- mybib.bib     : article과 book, inproceedings의 bibtex정보가 들어 있는 파일입니다.
+- listb.bib     : 약 1000개가 넘는 bibtex정보가 들어 있는 파일입니다.
+- testlist.txt  : bib파일의 경로정보를 가진 텍스트 파일입니다. 이 파일을 프로그램에 입력하면 경로에 위치한 bib파일을 import 합니다.
+- mybib2.bib    : testlist.txt파일의 예제로 쓰이는 bib파일입니다. 이 파일을 원하시는 위치에 두고 그 경로를 testlist.txt에 입력해줍니다.
+- newrecord.bib : update 예제를 위해 만들어진 bib파일로 내부에는 하나의 bibtex정보가 있습니다.
+- wrongbib.bib  : 예외처리를 확인하기 위해, 프로그램에서 지원하지 않는 bibtex형식의 정보가 저장된 파일입니다.
+
+3. 프로그램을 실행합니다.
 ![main](https://user-images.githubusercontent.com/38119700/41143960-2e6aec58-6b36-11e8-933d-c3148ab80e80.jpg)
-4. 첨부되어 있는 mybib.bib / newrecord.bib / listb.bib 은 같은 실행 폴더에, mybib2.bib은 아무데나 두셔도 되지만 이 경로를 testlist.txt안에 절대경로로 적어 두셔야 합니다.
+
+4. 제시된 명령어를 입력하여 bib파일을 관리합니다.
 
 명령어
 -----
---input mybib.bib
-: 프로그램 실행후 위 명령을 하게 되면 mybib.bib에서 bibtex 정보를 읽어와서 파싱을 한 후 저장해둡니다.
-
---input mybib.bib mybib.bib ... 
-:이런 식으로 여러번 호출해서 한번에 여러개의 bib파일을 불러올수도 있습니다.
-
---input testlist.txt
-:bib파일의 절대경로를 입력한 txt 파일을 불러오면 그 경로를 바탕으로 bib파일을 읽어 데이터를 저장합니다. 여러개의 경로를 \n 기준으로 입력하시면 여러개의 bib파일을 읽으실 수 있습니다.
+--input [File] [File] [File] ...
+: 파일을 import하기 위한 명령입니다. [File]에 bib파일이나 txt파일의 이름을 입력하여 해당 파일을 import합니다. 
+- 올바른 형식의 파일을 입력 후 데이터 import가 성공적으로 끝난다면 [Info]: Input Complete 메시지가 출력됩니다.
+- 잘못된 형식의 파일을 입력할 시 [Error]메시지가 출력됩니다.
+- 프로그램에서 지원하지 않는 bib파일 형식을 입력하면 [Error]메시지가 출력됩니다. 프로그램은 '\n'기준으로 분리된 bib파일을 읽습니다.
 
 --list all
-:저장되어 있는 모든 데이터를 읽어와 아티클, 북, 인프로시딩 순서로 데이터를 불러들이게 됩니다.
+: 현재 저장되어 있는 모든 데이터를 불러와 화면에 출력합니다. 데이터는 article, book, inproceedings 테이블 순서로 출력됩니다.
+- 데이터는 100개를 기준으로 출력됩니다.(데이터가 100개를 넘는다면 사용자에게 계속 출력할 것인지 묻습니다.)
+- 만약 테이블에 데이터가 존재하지 않을 경우 [Info]: Nothing Data 메시지를 출력합니다.
 
---list key 6
-:key 값이 6인 데이터만 찾아서 불러오는 명령입니다. 두번 째 인자에는 찾을 대상의 애트리뷰트 이름이 그리고 세번 째 인자에는 찾을 값이 들어가야 합니다.
+--list [Attribute] ["value"]
+: 특정 [Attribute]의 값이 [value]인 데이터만을 출력합니다.
+- [Attribute]는 각 테이블의 요소 이름을 입력합니다.
+- [value]는 문자열일 경우 큰 따옴표를 이용하여 입력합니다. ex> --list title "a Big title"
 
---update 6 newrecord.bib
-:key 값이 6인 데이터를 newrecord.bib에서 불러와 데이터를 대체합니다. 기존에 존재했던 데이터를 삭제하고 새롭게 읽어 드린 데이터를 추가하는 식으로 구현되었습니다.
+--update [key] [File]
+: [key]값에 해당하는 데이터를 [File]에서 읽어온 데이터로 수정합니다.
+- [File]안에는 bib파일 형식이 들어가야합니다. 또한 하나의 데이터를 수정하기 때문에 bib파일에도 하나의 bibtex정보만 읽어옵니다.
 
---element 6 title BIG PAPER
-:key 값이 6인 데이터의 title 정보를 BIG PAPER로 바꾸라는 명령입니다. 두번 째 인자에는 key 값을, 세번 째 인자에는 바꾸고자하는 애트리뷰트의 이름 그리고 마지막은 값을 적어주시면 됩니다.
+--element [key] [Attribute] ["value"]
+: [key]값에 해당하는 데이터의 [Attribute]를 [value]값으로 수정합니다.
+- [value]는 문자열일 경우 큰 따옴표를 이용하여 입력합니다.
+- 값이 수정되면 해당 요소가 수정되었다는 메시지를 출력합니다.
 
-
+추가기능
+--sort [Attribute] [asc or desc]
+: [Attribute]를 기준으로 오름차순 혹은 내림차순으로 테이블을 정렬합니다.(각 테이블별로 정리합니다)
+- 오름차순 정렬은 [asc or desc]에 asc를 입력하고 내림차순 정렬은 desc를 입력합니다.
