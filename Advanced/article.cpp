@@ -29,7 +29,7 @@ void Article::setTitle(string title) {
 void Article::setJournal(string journal) {
 	this->journal = journal;
 }
-void Article::setChapter(string chapter) {
+void Article::setChapter(int chapter) {
 	this->chapter = chapter;
 }
 void Article::setEdition(string edition) {
@@ -53,6 +53,10 @@ int Article::getVolume() {
 	return this->volume;
 }
 
+int Article::getChapter() {
+	return this->chapter;
+}
+
 string Article::getPages() {
 	return this->pages;
 }
@@ -71,10 +75,6 @@ string Article::getPublisher() {
 
 string Article::getJournal() {
 	return this->journal;
-}
-
-string Article::getChapter() {
-	return this->chapter;
 }
 
 string Article::getEdition() {
